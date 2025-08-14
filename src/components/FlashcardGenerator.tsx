@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Brain, Download, FileText, FileSpreadsheet } from "lucide-react";
+import { Loader2, Brain, Download, FileText, FileSpreadsheet, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { FlashcardDisplay } from "./FlashcardDisplay";
 import { ExportButtons } from "./ExportButtons";
@@ -61,7 +61,7 @@ export const FlashcardGenerator = () => {
   };
 
   return (
-    <section id="models" className="w-full max-w-7xl mx-auto space-y-12">
+    <section id="models" className="w-full max-w-7xl mx-auto space-y-12 px-8">
       <div className="text-center space-y-8 animate-fade-in">
         <div className="relative flex justify-center">
           <div className="absolute inset-0 bg-gradient-primary opacity-20 blur-3xl rounded-full animate-glow" />
@@ -109,7 +109,7 @@ export const FlashcardGenerator = () => {
               <span className="text-gradient">Paste your content here</span>
             </label>
             <p className="text-muted-foreground">
-              Articles, notes, research papers, textbooks - anything you want to learn from
+              Articles, notes, research papers, textbooks & topic- anything you want to learn from
             </p>
             <Textarea
               id="input-text"
@@ -118,6 +118,7 @@ export const FlashcardGenerator = () => {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
             />
+            
           </div>
 
           <Button
@@ -128,13 +129,13 @@ export const FlashcardGenerator = () => {
           >
             {loading ? (
               <>
-                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                <span>Generating flashcards...</span>
+                <Loader2 className="w-5 h-5 mr-3 animate-spin text-white" />
+                <span className="text-white">Generating flashcards...</span>
               </>
             ) : (
               <>
-                <Brain className="w-5 h-5 mr-3" />
-                <span>Generate AI Flashcards</span>
+                <Sparkles className="w-5 h-5 mr-3 text-white" />
+                <span className="text-white">Generate AI Flashcards</span>
               </>
             )}
           </Button>

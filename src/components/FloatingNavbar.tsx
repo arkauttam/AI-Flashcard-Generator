@@ -28,7 +28,7 @@ export const FloatingNavbar = () => {
       ${isScrolled ? 'w-[95%] max-w-7xl' : 'w-[90%] max-w-5xl'}
     `}>
       <div className={`
-        backdrop-blur-lg rounded-3xl px-8 py-4 transition-all duration-700 ease-premium
+        backdrop-blur-xl rounded-3xl px-8 py-4 transition-all duration-700 ease-premium
         ${isScrolled ? 'shadow-xl scale-95' : 'shadow-lg'}
         border border-primary/20
       `}>
@@ -69,11 +69,11 @@ export const FloatingNavbar = () => {
 
           {/* Premium Action Buttons */}
           <div className="hidden lg:flex items-center space-x-3">
-            <Button className="hover:bg-gradient-primary transition-all duration-300 font-semibold">
+            <Button className="hover:bg-gradient-primary transition-all duration-300 font-semibold"disabled>
               <Settings className="w-4 h-4 mr-2" />
               Settings
             </Button>
-            <Button className="bg-gradient-primary hover:shadow-glow-primary transition-all duration-300 hover-lift font-semibold">
+            <Button className="bg-gradient-primary hover:shadow-glow-primary transition-all duration-300 hover-lift font-semibold"disabled>
               <User className="w-4 h-4 mr-2" />
               Sign In
             </Button>
@@ -113,11 +113,11 @@ export const FloatingNavbar = () => {
                 );
               })}
               <div className="flex flex-col space-y-2 pt-3 border-t border-white/10">
-                <Button className="hover:bg-gradient-primary transition-all duration-300 font-semibold">
+                <Button className="hover:bg-gradient-primary transition-all duration-300 font-semibold"disabled>
                   <Settings className="w-4 h-4 mr-2" />
                   Settings
                 </Button>
-                <Button className="hover:bg-gradient-primary transition-all duration-300 font-semibold">
+                <Button className="hover:bg-gradient-primary transition-all duration-300 font-semibold"disabled>
                   <User className="w-4 h-4 mr-2" />
                   Sign In
                 </Button>

@@ -31,13 +31,13 @@ const footerLinks = {
 const socialLinks = [
   { icon: Twitter, href: "#twitter", label: "Twitter" },
   { icon: Github, href: "#github", label: "GitHub" },
-  { icon: Linkedin, href: "https://www.linkedin.com/in/uttam-ghosh-7187a2258/", label: "LinkedIn" },
+  { icon: Linkedin, href: "#linkedin", label: "LinkedIn" },
   { icon: Mail, href: "#email", label: "Email" }
 ];
 
 export const Footer = () => {
   return (
-    <footer className="relative border-t border-primary/10">
+    <footer className="relative border-t border-primary/10 backdrop-blur-4xl">
       {/* Background Effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -46,7 +46,7 @@ export const Footer = () => {
 
       <div className="container mx-auto px-4 pt-16 pb-8 relative z-10">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 mb-12">
           {/* Brand Section */}
           <div className="lg:col-span-2 space-y-6 animate-fade-in">
             <div className="flex items-center space-x-3">
@@ -58,7 +58,7 @@ export const Footer = () => {
               </span>
             </div>
             <p className="text-muted-foreground leading-relaxed max-w-sm">
-              Transform any content into intelligent flashcards with the power of AI. 
+              Transform any content into intelligent flashcards with the power of AI.
               Learn smarter, not harder.
             </p>
             <div className="flex space-x-4">
@@ -130,7 +130,15 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-primary/10 pt-8 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 animate-fade-in" style={{ animationDelay: '0.8s' }}>
           <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <span>© 2025 FlashAI. Made with</span>
+            <span>© 2025 FlashAI. Made by
+              <a
+                href="https://www.linkedin.com/in/uttam-ghosh-7187a2258/"
+                className="social-link text-secondary/80 pl-2 hover:text-secondary/50"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Uttam Ghosh
+              </a> with</span>
             <Heart className="w-4 h-4 text-red-500 animate-pulse" />
             <span>for learners everywhere.</span>
           </div>

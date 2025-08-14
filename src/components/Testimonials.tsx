@@ -55,7 +55,7 @@ const testimonials = [
 
 export const Testimonials = () => {
   return (
-    <section id="testimonials" className="py-32 relative overflow-hidden">
+    <section id="testimonials" className="relative overflow-hidden py-24 w-full max-w-7xl mx-auto space-y-12 px-6">
       {/* Background Effects */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-slow" />

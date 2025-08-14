@@ -3,6 +3,7 @@ import type { Flashcard } from "@/components/FlashcardGenerator";
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
+
 async function retry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
   for (let i = 0; i < retries; i++) {
     try {
@@ -18,7 +19,6 @@ async function retry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
 
 export const generateFlashcards = async (
   text: string,
-  topic?: string,
   language: string = "English"
 ): Promise<Flashcard[]> => {
   try {
@@ -26,16 +26,43 @@ export const generateFlashcards = async (
       console.warn("No API key found, using mock data");
       return generateMockFlashcards(text);
     }
-
+    console.log("text", text);
     const maxChars = 15000;
     if (text.length > maxChars) text = text.slice(0, maxChars);
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
-    // Dynamic prompt
-    let prompt = "";
-    if (topic) {
-      prompt = `
+    const trimmed = text.trim();
+    const isQuestion =
+      trimmed.endsWith("?") ||
+      /^(what|who|when|where|why|how|which)\b/i.test(trimmed);
+
+    const isShortTopic = !isQuestion && trimmed.split(/\s+/).length <= 20;
+
+    // Case 1: Direct Question
+    if (isQuestion) {
+      const prompt = `
+You are a helpful AI tutor. The user has asked the following question:  
+"${text}"  
+
+Answer in ${language}, concisely but completely.  
+Only return plain text, no JSON, no extra formatting.
+`;
+      const result = await retry(() => model.generateContent(prompt));
+      const answer = result.response.text().trim();
+
+      return [
+        {
+          id: `qa-${Date.now()}`,
+          question: text,
+          answer,
+        },
+      ];
+    }
+
+    // Case 2: Short Topic (< 20 words)
+    if (isShortTopic) {
+      const prompt = `
 You are an expert AI tutor. Generate **unlimited** question-answer pairs about the following topic. 
 Answer in ${language}.
 Format strictly as a JSON array:
@@ -45,10 +72,25 @@ Format strictly as a JSON array:
     "answer": "Comprehensive answer in ${language}"
   }
 ]
-Topic: ${topic}
+Topic: ${trimmed}
 `;
-    } else {
-      prompt = `
+      const result = await retry(() => model.generateContent(prompt));
+      const responseText = result.response.text();
+
+      const jsonMatch = responseText.match(/\[.*\]/s);
+      if (!jsonMatch)
+        throw new Error("No valid JSON array found in Gemini response");
+
+      const flashcardsData = JSON.parse(jsonMatch[0]);
+      return flashcardsData.map((card: any, index: number) => ({
+        id: `topic-${Date.now()}-${index}`,
+        question: card.question,
+        answer: card.answer,
+      }));
+    }
+
+    // Case 3: Long Text
+    const prompt = `
 Based on the following text, create 15-20 flashcards with clear questions and comprehensive answers.
 Answer in ${language}.
 Format strictly as a JSON array:
@@ -59,33 +101,28 @@ Format strictly as a JSON array:
   }
 ]
 Text to analyze:
-${text}
+${trimmed}
 `;
-    }
 
     const result = await retry(() => model.generateContent(prompt));
     const responseText = result.response.text();
 
-    // Parse JSON array
     const jsonMatch = responseText.match(/\[.*\]/s);
     if (!jsonMatch)
       throw new Error("No valid JSON array found in Gemini response");
 
     const flashcardsData = JSON.parse(jsonMatch[0]);
-    const flashcards: Flashcard[] = flashcardsData.map(
-      (card: any, index: number) => ({
-        id: `card-${Date.now()}-${index}`,
-        question: card.question,
-        answer: card.answer,
-      })
-    );
-
-    return flashcards;
+    return flashcardsData.map((card: any, index: number) => ({
+      id: `card-${Date.now()}-${index}`,
+      question: card.question,
+      answer: card.answer,
+    }));
   } catch (error) {
     console.error("Error generating flashcards:", error);
     throw new Error("Failed to generate flashcards");
   }
 };
+
 // Mock data for development/demo use
 const generateMockFlashcards = (text: string): Flashcard[] => {
   const mockCards: Flashcard[] = [
