@@ -31,7 +31,7 @@ const footerLinks = {
 const socialLinks = [
   { icon: Twitter, href: "#twitter", label: "Twitter" },
   { icon: Github, href: "#github", label: "GitHub" },
-  { icon: Linkedin, href: "#linkedin", label: "LinkedIn" },
+  { icon: Linkedin, href: "https://www.linkedin.com/in/uttam-ghosh-7187a2258/", label: "LinkedIn" },
   { icon: Mail, href: "#email", label: "Email" }
 ];
 
