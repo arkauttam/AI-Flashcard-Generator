@@ -81,7 +81,7 @@ export const Testimonials = () => {
           {testimonials.map((testimonial, index) => (
             <Card
               key={index}
-              className={`group relative p-8 glass-morphism border border-primary/20 hover:border-primary/40 transition-all duration-700 hover-lift animate-scale-in overflow-hidden`}
+              className={`cursor-pointer group relative p-8 glass-morphism border border-primary/20 hover:border-primary/40 transition-all duration-700 hover-lift animate-scale-in overflow-hidden`}
               style={{ animationDelay: `${index * 0.15}s` }}
             >
               {/* Background Gradient */}
