@@ -17,6 +17,39 @@ async function retry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
   throw new Error("Max retries reached");
 }
 
+function extractJsonArray(text: string) {
+  // Remove code fences
+  let cleaned = text.replace(/```json|```/gi, "").trim();
+
+  // Match first JSON array in text
+  const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
+  let jsonString = jsonMatch ? jsonMatch[0] : cleaned;
+
+  // Attempt parsing, with repair fallback
+  try {
+    return JSON.parse(jsonString);
+  } catch (e) {
+    console.warn("JSON parse failed, attempting repair...");
+
+    // Remove trailing commas before closing ] or }
+    jsonString = jsonString.replace(/,\s*([\]}])/g, "$1");
+
+    // Ensure array ends with ]
+    if (!jsonString.trim().endsWith("]")) {
+      jsonString = jsonString.trim() + "]";
+    }
+
+    // Final attempt
+    try {
+      return JSON.parse(jsonString);
+    } catch (err) {
+      console.error("JSON repair failed:", err);
+      throw new Error("Invalid JSON from Gemini");
+    }
+  }
+}
+
+
 export const generateFlashcards = async (
   text: string,
   language: string = "English"
@@ -26,6 +59,7 @@ export const generateFlashcards = async (
       console.warn("No API key found, using mock data");
       return generateMockFlashcards(text);
     }
+
     console.log("text", text);
     const maxChars = 15000;
     if (text.length > maxChars) text = text.slice(0, maxChars);
@@ -42,11 +76,11 @@ export const generateFlashcards = async (
     // Case 1: Direct Question
     if (isQuestion) {
       const prompt = `
-You are a helpful AI tutor. The user has asked the following question:  
+You are a helpful AI tutor. The user has asked the following question:
 "${text}"  
 
-Answer in ${language}, concisely but completely.  
-Only return plain text, no JSON, no extra formatting.
+Answer in ${language}, concisely but completely.
+Only return plain text, no JSON, no formatting.
 `;
       const result = await retry(() => model.generateContent(prompt));
       const answer = result.response.text().trim();
@@ -63,9 +97,11 @@ Only return plain text, no JSON, no extra formatting.
     // Case 2: Short Topic (< 20 words)
     if (isShortTopic) {
       const prompt = `
-You are an expert AI tutor. Generate **unlimited** question-answer pairs about the following topic. 
+You are an expert AI tutor. 
+Generate as many question-answer pairs as needed about the following topic.
 Answer in ${language}.
-Format strictly as a JSON array:
+Output only raw JSON. No explanations, no markdown, no code fences, no extra text.
+JSON format:
 [
   {
     "question": "Question about the topic",
@@ -75,13 +111,8 @@ Format strictly as a JSON array:
 Topic: ${trimmed}
 `;
       const result = await retry(() => model.generateContent(prompt));
-      const responseText = result.response.text();
+      const flashcardsData = extractJsonArray(result.response.text());
 
-      const jsonMatch = responseText.match(/\[.*\]/s);
-      if (!jsonMatch)
-        throw new Error("No valid JSON array found in Gemini response");
-
-      const flashcardsData = JSON.parse(jsonMatch[0]);
       return flashcardsData.map((card: any, index: number) => ({
         id: `topic-${Date.now()}-${index}`,
         question: card.question,
@@ -93,7 +124,8 @@ Topic: ${trimmed}
     const prompt = `
 Based on the following text, create 15-20 flashcards with clear questions and comprehensive answers.
 Answer in ${language}.
-Format strictly as a JSON array:
+Output only raw JSON. No explanations, no markdown, no code fences, no extra text.
+JSON format:
 [
   {
     "question": "Clear, specific question about the content",
@@ -103,15 +135,9 @@ Format strictly as a JSON array:
 Text to analyze:
 ${trimmed}
 `;
-
     const result = await retry(() => model.generateContent(prompt));
-    const responseText = result.response.text();
+    const flashcardsData = extractJsonArray(result.response.text());
 
-    const jsonMatch = responseText.match(/\[.*\]/s);
-    if (!jsonMatch)
-      throw new Error("No valid JSON array found in Gemini response");
-
-    const flashcardsData = JSON.parse(jsonMatch[0]);
     return flashcardsData.map((card: any, index: number) => ({
       id: `card-${Date.now()}-${index}`,
       question: card.question,

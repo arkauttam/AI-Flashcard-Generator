@@ -44,6 +44,7 @@ export const FlashcardGenerator = () => {
     try {
       const generatedCards = await generateFlashcards(inputText);
       setFlashcards(generatedCards);
+      console.log("flashcards",generatedCards)
       toast({
         title: "Flashcards generated!",
         description: `Successfully created ${generatedCards.length} flashcards.`,
